@@ -1,0 +1,7 @@
+/vendor/
+/_docker/
+/_dump/
+/_ssl/
+docker-compose.yml
+Dockerfile
+/tests/config.php
