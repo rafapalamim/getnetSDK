@@ -2,51 +2,43 @@
 
 namespace GetNet\Parts;
 
-use GetNet\Exception\SDKException;
-use GetNet\Helpers\Request;
-
+/**
+ * GetNet OAuth2 proccess
+ */
 class Auth
 {
 
-    private const SCOPE = 'oob';
-    private const GRANT_TYPE = 'client_credentials';
+    /** @var string */
+    public const SCOPE = 'oob';
 
+    /** @var string */
+    public const GRANT_TYPE = 'client_credentials';
+
+    /** @var string */
     private $authorization;
 
     function __construct()
     {
     }
 
-    public function makeAuth(\GetNet\GetNet $getnet)
+    /**
+     * Set OAuth2 access
+     *
+     * @param string $authorization
+     * @return Auth
+     */
+    public function setAuthorization(string $authorization): Auth
     {
-
-        if (!$getnet->getEnv()) {
-            throw new SDKException("Set a environment before make auth");
-        }
-
-        $request = new Request($getnet->getUrlApi());
-
-        $res = $request->makeRequest('POST', '/auth/oauth/v2/token', [
-            'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
-                'Authorization' => 'Basic ' . base64_encode($getnet->getClientId() . ':' . $getnet->getClientSecret())
-            ],
-            'form_params' => [
-                'scope' =>  self::SCOPE,
-                'grant_type' => self::GRANT_TYPE
-            ]
-        ]);
-
-        if (!$res) {
-            throw new SDKException("Fail on auth process: " . $request->getError());
-        }
-
-        $res = $request->getRespose();
-
-        $this->authorization = $res['body']->token_type . ' ' . $res['body']->access_token;
+        $this->authorization = $authorization;
+        return $this;
     }
 
-    public function getAuthorization()
+    /**
+     * Get OAuth2
+     *
+     * @return string
+     */
+    public function getAuthorization():string
     {
         return $this->authorization;
     }

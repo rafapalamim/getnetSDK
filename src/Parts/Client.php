@@ -2,28 +2,49 @@
 
 namespace GetNet\Parts;
 
+/**
+ * Purchaser data
+ */
 class Client
 {
 
+    /** @var string */
     public const CPF = 'CPF';
+
+    /** @var string */
     public const CNPJ = 'CNPJ';
 
+    /** @var string */
     private $customerId;
+
+    /** @var string */
     private $firstName;
+
+    /** @var string */
     private $lastName;
+
+    /** @var string */
     private $documentType;
+
+    /** @var string */
     private $documentNumber;
+
+    /** @var string */
     private $birthDate;
+
+    /** @var string */
     private $phoneNumber;
+
+    /** @var string */
     private $celphoneNumber;
+
+    /** @var string */
     private $email;
+
+    /** @var string */
     private $observation;
-    private $address;
-    private $card;
 
-    private $isRecurrence;
-
-    function __construct(array $data, ClientAddress $address, ClientCard $card, bool $recurrence)
+    function __construct(array $data)
     {
         $this->customerId = $data[0];
         $this->firstName = $data[1];
@@ -35,10 +56,5 @@ class Client
         $this->celphoneNumber = $data[7];
         $this->email = $data[8];
         $this->observation = $data[9];
-        $this->address = $address;
-        $this->card = $card;
-
-        $this->isRecurrence = $recurrence;
     }
-
 }
