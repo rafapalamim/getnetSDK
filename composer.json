@@ -8,7 +8,8 @@
         }
     ],
     "require": {
-        "guzzlehttp/guzzle": "^7.3"
+        "guzzlehttp/guzzle": "^7.3",
+        "vectorface/whip": "^0.4.0"
     },
     "autoload": {
         "psr-4": {

@@ -20,6 +20,9 @@ class Request
 
     public function makeRequest(string $method, string $url, array $options): bool
     {
+        
+        $this->response = null;
+        $this->error = null;
 
         try {
 

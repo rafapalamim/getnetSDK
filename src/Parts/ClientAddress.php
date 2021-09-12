@@ -43,4 +43,13 @@ class ClientAddress
         $this->country = $data[6];
         $this->postalCode = $data[7];
     }
+
+    function __get(string $field)
+    {
+        if($this->$field){
+            return $this->$field;
+        }
+
+        return null;
+    }
 }

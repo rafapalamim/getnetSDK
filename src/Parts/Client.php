@@ -44,6 +44,8 @@ class Client
     /** @var string */
     private $observation;
 
+    private $ipv4Access;
+
     function __construct(array $data)
     {
         $this->customerId = $data[0];
@@ -56,5 +58,20 @@ class Client
         $this->celphoneNumber = $data[7];
         $this->email = $data[8];
         $this->observation = $data[9];
+        $this->ipv4Access = $data[10];
+    }
+
+    function __get(string $field)
+    {
+        if($this->$field){
+            return $this->$field;
+        }
+
+        return null;
+    }
+
+    public function getFullName()
+    {
+        return $this->firstName . ' ' . $this->lastName;
     }
 }

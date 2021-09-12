@@ -3,10 +3,10 @@
 require "./../vendor/autoload.php";
 
 use GetNet\GetNet;
-use GetNet\Parts\Auth;
 use GetNet\Parts\Client;
 use GetNet\Parts\ClientCard;
 use GetNet\Parts\ClientAddress;
+use GetNet\Parts\Transaction;
 use GetNet\Exception\SDKException;
 
 try {
@@ -21,18 +21,27 @@ try {
     $clientAddress = new ClientAddress($addressData);
 
     // Informando os dados do cartão do cliente
-    $clientCard = new ClientCard($cardData);
+    $methodPayment = new ClientCard($cardData, ClientCard::CREDIT);
 
     // Dados gerais do cliente
     $client = new Client($clientData);
 
-    // Efetuando OAuth2 e armazenando o access_token
+    // Gerando informações para efetuar a transação
     $getnet
         ->makeOAuth()
-        ->setPurchaser($client, $clientAddress, $clientCard);
+        ->setPurchaser($client, $clientAddress, $methodPayment)
+        ->makeCardToken()
+        ->validateClientCard();
+
+    $trans = new Transaction($getnet, 'trackCode');
+    $trans
+        ->setAmount(50)
+        ->setCurrency(Transaction::CURRENCY_BR)
+        ->setOrder('1', 0, Transaction::PRODUCT_TYPE_SERVICE)
+        ->runWithAntiFraud('123');
 
     echo '<pre>';
-    var_dump($getnet);
+    var_dump($trans);
     die;
 } catch (SDKException $e) {
     var_dump($e->getMessage());

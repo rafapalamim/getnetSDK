@@ -8,6 +8,7 @@ use GetNet\Parts\ClientCard;
 use GetNet\Parts\Auth;
 use GetNet\Helpers\Request;
 use GetNet\Exception\SDKException;
+use GetNet\Interfaces\MethodPaymentInterface;
 
 class GetNet
 {
@@ -27,6 +28,7 @@ class GetNet
     private $urlApi;
     private $env;
 
+    /** @var Auth */
     private $auth;
     private $request;
 
@@ -84,11 +86,9 @@ class GetNet
     public function makeOAuth(): GetNet
     {
 
-        $this->auth = new Auth();
+        $this->validateEnv();
 
-        if (!$this->getEnv()) {
-            throw new SDKException("Set a environment before make auth");
-        }
+        $this->auth = new Auth();
 
         $res = $this->request->makeRequest('POST', '/auth/oauth/v2/token', [
             'headers' => [
@@ -121,16 +121,101 @@ class GetNet
      * @param ClientCard $card
      * @return GetNet
      */
-    public function setPurchaser(Client $client, ClientAddress $address, ClientCard $card): GetNet
+    public function setPurchaser(Client $client, ClientAddress $address, MethodPaymentInterface $methodPayment): GetNet
     {
 
         $this->purchaser = new \stdClass();
 
         $this->purchaser->client = $client;
         $this->purchaser->address = $address;
-        $this->purchaser->card = $card;
+        $this->purchaser->methodPayment = $methodPayment;
 
         return $this;
+    }
+
+    /**
+     * Tokenizer the card number
+     *
+     * @return GetNet
+     */
+    public function makeCardToken(): GetNet
+    {
+
+        $this->validateEnv();
+
+        $res = $this->request->makeRequest('POST', '/v1/tokens/card', [
+            'headers' => [
+                'Content-Type' => 'application/json; charset=utf-8',
+                'Authorization' => $this->auth->getAuthorization()
+            ],
+            'body' => json_encode([
+                'card_number' => $this->getClientMethodPayment()->numberCard,
+                'customer_id' => $this->getClientData()->customerId
+            ])
+        ]);
+
+        if (!$res) {
+            throw new SDKException("Fail on tokenizer the card: " . $this->request->getError());
+        }
+
+        $res = $this->request->getRespose();
+
+        $this->getClientMethodPayment()->setTokenCard($res['body']->number_token);
+
+        return $this;
+    }
+
+    /**
+     * Validate the client card
+     *
+     * @return GetNet
+     */
+    public function validateClientCard(): GetNet
+    {
+
+        $this->validateEnv();
+
+        $res = $this->request->makeRequest('POST', '/v1/cards/verification', [
+            'headers' => [
+                'Content-Type' => 'application/json; charset=utf-8',
+                'Authorization' => $this->auth->getAuthorization()
+            ],
+            'body' => json_encode([
+                'number_token' => $this->getClientMethodPayment()->tokenCard,
+                'brand' => $this->getClientMethodPayment()->brand,
+                'cardholder_name' => $this->getClientMethodPayment()->cardHolderName,
+                'expiration_month' => $this->getClientMethodPayment()->expirationMonth,
+                'expiration_year' => $this->getClientMethodPayment()->expirationYear,
+                'security_code' => $this->getClientMethodPayment()->securityCode
+            ])
+        ]);
+
+        if (!$res) {
+            throw new SDKException("Fail on validate the card: " . $this->request->getError());
+        }
+
+        $res = $this->request->getRespose();
+
+        $this->getClientMethodPayment()->saveCardVerification($res['body']);
+
+        return $this;
+    }
+
+
+    #########################################
+    ########### HELPERS VALIDATOR ###########
+    #########################################
+
+    /**
+     * Helper to validate env
+     *
+     * @return void
+     */
+    private function validateEnv(): void
+    {
+        if (!$this->getEnv()) {
+            throw new SDKException("Set a environment before make auth");
+        }
     }
 
     #########################################
@@ -185,5 +270,35 @@ class GetNet
     public function getUrlApi(): string
     {
         return $this->urlApi;
+    }
+
+    /**
+     * Get purchaser card on object
+     *
+     * @return ClientCard
+     */
+    public function getClientMethodPayment()
+    {
+        return $this->purchaser->methodPayment;
+    }
+
+    /**
+     * Get purchaser address on object
+     *
+     * @return ClientAddress
+     */
+    public function getClientAddress(): ClientAddress
+    {
+        return $this->purchaser->address;
+    }
+
+    /**
+     * Get purchaser data on object
+     *
+     * @return Client
+     */
+    public function getClientData(): Client
+    {
+        return $this->purchaser->client;
     }
 }
