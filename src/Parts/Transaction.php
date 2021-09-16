@@ -149,24 +149,33 @@ class Transaction
     }
     */
 
-    public function setPaymentAttributes(
-        bool $delayed,
-        bool $preAuthorization,
-        bool $saveCardData,
-        string $transactionType,
-        int $numberInstallments,
-        string $softDescriptor,
-        int $dynamicMcc = null
-    ): Transaction {
+    public function setPaymentAttributes(array $data): Transaction {
 
-        $this->paymentAttributes = new \stdClass();
-        $this->paymentAttributes->delayed = $delayed;
-        $this->paymentAttributes->pre_authorization = $preAuthorization;
-        $this->paymentAttributes->save_card_data = $saveCardData;
-        $this->paymentAttributes->transaction_type = $transactionType;
-        $this->paymentAttributes->number_installments = $numberInstallments;
-        $this->paymentAttributes->soft_descriptor = $softDescriptor;
-        $this->paymentAttributes->dynamic_mcc = $dynamicMcc;
+        $clientPaymentMethod = $this->getnet->getClientMethodPayment();
+
+        if ($clientPaymentMethod->getType() === $clientPaymentMethod::CREDIT) {
+            $this->paymentAttributes = new \stdClass();
+            $this->paymentAttributes->delayed = $data['delayed'];
+            $this->paymentAttributes->pre_authorization = $data['pre_authorization'];
+            $this->paymentAttributes->save_card_data = $data['save_card_data'];
+            $this->paymentAttributes->transaction_type = $data['transaction_type'];
+            $this->paymentAttributes->number_installments = $data['number_installments'];
+        } else {
+            $this->paymentAttributes = new \stdClass();
+            $this->paymentAttributes->cardholder_mobile = $data['cardholder_mobile'];
+            $this->paymentAttributes->authenticated = $data['authenticated'];
+        }
+
+        $this->paymentAttributes->soft_descriptor = $data['soft_descriptor'];
+        $this->paymentAttributes->dynamic_mcc = $data['dynamic_mcc'];
+
+        $this->setPaymentAttributesCard();
+
+        return $this;
+    }
+
+    private function setPaymentAttributesCard(): void
+    {
 
         $clientPaymentMethod = $this->getnet->getClientMethodPayment();
         $this->paymentAttributes->card = new \stdClass();
@@ -176,8 +185,6 @@ class Transaction
         $this->paymentAttributes->card->brand = $clientPaymentMethod->brand;
         $this->paymentAttributes->card->expiration_month = $clientPaymentMethod->expirationMonth;
         $this->paymentAttributes->card->expiration_year = $clientPaymentMethod->expirationYear;
-
-        return $this;
     }
 
     // Criar um validator para validar os campos antes de executar a transação...
@@ -250,12 +257,14 @@ class Transaction
         // }
 
         $paymentMethod = $this->getnet->getClientMethodPayment()->getType();
+        $endpointPaymentMethod = $this->getnet->getClientMethodPayment()->getTypeEndpoint();
+
         $json[$paymentMethod] = (array)$this->paymentAttributes;
         $json[$paymentMethod]['card'] = (array)$json[$paymentMethod]['card'];
 
         $body = json_encode($json);
 
-        $res = $this->getnet->getRequester()->makeRequest('POST', '/v1/payments/credit', [
+        $res = $this->getnet->getRequester()->makeRequest('POST', $endpointPaymentMethod, [
             'headers' => [
                 'Content-Type' => 'application/json; charset=utf-8',
                 'Authorization' => $this->getnet->getAuth()->getAuthorization()

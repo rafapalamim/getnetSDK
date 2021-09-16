@@ -2,6 +2,8 @@
 
 namespace GetNet\Parts;
 
+use GetNet\Exception\SDKException;
+
 /**
  * Purchaser card data
  */
@@ -25,9 +27,15 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
 
     /** @var string */
     public const CREDIT = 'credit';
+    
+    /** @var string */
+    public const CREDIT_ENDPOINT = '/v1/payments/credit';
 
     /** @var string */
     public const DEBIT = 'debit';
+
+    /** @var string */
+    public const DEBIT_ENDPOINT = '/v1/payments/debit';
 
     /** @var string */
     private $numberCard;
@@ -112,5 +120,14 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
     public function getType()
     {
         return $this->type;
+    }
+
+    public function getTypeEndpoint()
+    {
+        if($this->type){
+            return $this->type === self::CREDIT ? self::CREDIT_ENDPOINT : self::DEBIT_ENDPOINT;
+        }else{
+            throw new SDKException("No payment type setted");
+        }
     }
 }
