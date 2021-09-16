@@ -301,4 +301,14 @@ class GetNet
     {
         return $this->purchaser->client;
     }
+
+    public function getRequester(): Request
+    {
+        return $this->request;
+    }
+
+    public function getAuth(): Auth
+    {
+        return $this->auth;
+    }
 }

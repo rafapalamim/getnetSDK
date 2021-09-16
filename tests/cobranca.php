@@ -35,10 +35,13 @@ try {
 
     $trans = new Transaction($getnet, 'trackCode');
     $trans
-        ->setAmount(50)
+        ->setAmount(50.25)
         ->setCurrency(Transaction::CURRENCY_BR)
         ->setOrder('1', 0, Transaction::PRODUCT_TYPE_SERVICE)
+        ->setShipping(0)
+        ->setPaymentAttributes(false, false, false, Transaction::TRANSACTION_TYPE_FULL, 1, "Teste")
         ->runWithAntiFraud('123');
+        
 
     echo '<pre>';
     var_dump($trans);
