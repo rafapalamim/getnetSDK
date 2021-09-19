@@ -64,7 +64,7 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
     /** @var string */
     private $type;
 
-    function __construct(array $data, string $type)
+    function __construct(array $data)
     {
         $this->numberCard = $data[0];
         $this->brand = $data[1];
@@ -72,8 +72,8 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
         $this->expirationMonth = $data[3];
         $this->expirationYear = $data[4];
         $this->securityCode = $data[5];
+        $this->type = $data[6];
         $this->verification = null;
-        $this->type = $type;
     }
 
     /**

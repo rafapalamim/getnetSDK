@@ -3,8 +3,8 @@
 namespace GetNet\Helpers;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7;
-use GuzzleHttp\Exception\RequestException;
 
 class Request
 {
@@ -20,17 +20,22 @@ class Request
 
     public function makeRequest(string $method, string $url, array $options): bool
     {
-        
+
         $this->response = null;
         $this->error = null;
 
         try {
 
-            $client = new Client(['base_uri' => $this->baseUri]);
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                $client = new Client(['base_uri' => $this->baseUri]);
+            } else {
+                $client = new Client();
+            }
+
             $this->response = $client->request($method, $url, $options);
 
             return true;
-        } catch (RequestException $e) {
+        } catch (BadResponseException $e) {
             $this->error = $e;
             return false;
         }
@@ -45,8 +50,17 @@ class Request
         ];
     }
 
-    public function getError(): string
+    public function getError(bool $string = false)
     {
-        return Psr7\Message::toString($this->error->getResponse());
+        if ($string) {
+            return Psr7\Message::toString($this->error->getResponse());
+        }
+
+        $response = $this->error->getResponse();
+        return [
+            'status_code' => $response->getStatusCode(),
+            'reason' => $response->getReasonPhrase(),
+            'body' => json_decode($response->getBody()->getContents())
+        ];
     }
 }

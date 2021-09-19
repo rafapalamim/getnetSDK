@@ -4,6 +4,7 @@ namespace GetNet\Parts;
 
 use GetNet\Exception\SDKException;
 use GetNet\GetNet;
+use GetNet\Helpers\Errors;
 
 /**
  * Create a transaction with GetNet
@@ -149,7 +150,8 @@ class Transaction
     }
     */
 
-    public function setPaymentAttributes(array $data): Transaction {
+    public function setPaymentAttributes(array $data): Transaction
+    {
 
         $clientPaymentMethod = $this->getnet->getClientMethodPayment();
 
@@ -273,13 +275,46 @@ class Transaction
         ]);
 
         if (!$res) {
+            var_dump($this->getnet->getRequester()->getError()); die;
             throw new SDKException("Fail on make request: " . $this->getnet->getRequester()->getError());
         }
 
         $res = $this->getnet->getRequester()->getRespose();
 
-        echo '<pre>';
-        var_dump($res, $json);
-        die;
+        if ($paymentMethod == ClientCard::DEBIT && $res['status_code'] === 201) {
+
+            $issuer_payment_id = $res['body']->post_data->issuer_payment_id;
+            $payer_authentication_request = $res['body']->post_data->payer_authentication_request;
+            $redirect_url = $res['body']->redirect_url;
+
+            $res = $this->getnet->getRequester()->makeRequest('POST', $redirect_url, [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'Accept' => "application/json, text/plain, */*"
+                ],
+                'form_params' => [
+                    'PaReq' => $payer_authentication_request,
+                    'TermUrl' => 'https://developers.getnet.com.br/simulator/3dsecure/debit/callback',
+                    'PaymentID' => $issuer_payment_id
+                ]
+            ]);
+
+            if (!$res) {
+                throw new SDKException("Fail on make request: " . $this->getnet->getRequester()->getError());
+            }
+
+            $res = $this->getnet->getRequester()->getRespose();
+            // var_dump($res);
+            // die;
+        }
+
+
+        // echo '<pre>';
+        // var_dump($res, $json);
+        // die;
+    }
+
+    private function authenticateDebit()
+    {
     }
 }
