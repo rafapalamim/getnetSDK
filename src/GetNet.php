@@ -36,11 +36,38 @@ class GetNet
 
     private $purchaser;
 
+    private $debug;
+    private $debugFile;
+
     function __construct(string $clientId, string $clientSecret, string $sellerId)
     {
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->sellerId = $sellerId;
+
+        $this->debug = false;
+    }
+
+    /**
+     * Enable log
+     *
+     * @param string $pathToLog
+     * @param string|null $log_filaname
+     * @return void
+     */
+    public function debugMode(string $pathToLog, string $log_filaname = null)
+    {
+
+        $this->debug = true;
+
+        if (!$log_filaname) {
+            $log_filaname = date('Y-m-d');
+        }
+
+        ini_set("log_errors", 1);
+        $this->debugFile = $pathToLog . DIRECTORY_SEPARATOR . $log_filaname . '.log';
+        $this->setLog("Starting log...");
+        // $this->setLog(json_encode(['client_id' => $this->clientId, 'clientSecret' => $this->clientSecret, 'sellerId' => $this->sellerId]));
     }
 
     #########################################
@@ -57,6 +84,7 @@ class GetNet
     {
 
         if (!in_array($env, [self::ENV_SANDBOX, self::ENV_HOMOLOGATION, self::ENV_PRODUCTION])) {
+            $this->setLog('Fail on setting env: Environment not recognized');
             throw new SDKException("Environment not recognized");
         }
 
@@ -77,6 +105,7 @@ class GetNet
 
         $this->request = new Request($this->getUrlApi());
 
+        $this->setLog('Setting env: ' . $env);
         return $this;
     }
 
@@ -104,6 +133,7 @@ class GetNet
         ]);
 
         if (!$res) {
+            $this->setLog('Fail OAuth: ' . $this->request->getError(true));
             throw new SDKException("Fail on auth process: " . $this->request->getError(true));
         }
 
@@ -111,7 +141,7 @@ class GetNet
 
         $access_token = $res['body']->token_type . ' ' . $res['body']->access_token;
         $this->auth->setAuthorization($access_token);
-
+        $this->setLog('Success OAuth');
         return $this;
     }
 
@@ -135,8 +165,11 @@ class GetNet
             $methodPaymentClass = get_class($this->purchaser->methodPayment);
             if (preg_match('/Card/', $methodPaymentClass)) {
                 $this->loadCardData();
+                $this->setLog('GET a card data from getnet API (idSavedCard)');
             }
         }
+
+        $this->setLog('Create purchaser');
 
         return $this;
     }
@@ -397,5 +430,12 @@ class GetNet
     public function getAuth(): Auth
     {
         return $this->auth;
+    }
+
+    public function setLog(string $message, bool $transaction = false)
+    {
+        if ($this->debug) {
+            error_log(date('Y-m-d\ H:i:s') . ': ' . ($transaction ? '[GetNet Transaction]' : '[GetNet]') . ' - ' . $message . PHP_EOL, 3, $this->debugFile);
+        }
     }
 }

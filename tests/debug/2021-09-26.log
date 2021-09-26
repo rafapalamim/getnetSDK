@@ -1,0 +1,117 @@
+2021-09-26 09:02:53: Starting log...
+2021-09-26 09:03:01: Starting log...
+2021-09-26 09:08:28: Starting log...
+2021-09-26 09:08:28: Setting env: sandbox
+2021-09-26 09:08:30: Success OAuth
+2021-09-26 09:08:30: GET a card data from getnet API (idSavedCard)
+2021-09-26 09:08:30: Create purchaser
+2021-09-26 09:11:25: [GetNet] - Starting log...
+2021-09-26 09:11:25: [GetNet] - Setting env: sandbox
+2021-09-26 09:11:25: [GetNet] - Success OAuth
+2021-09-26 09:11:26: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 09:11:26: [GetNet] - Create purchaser
+2021-09-26 09:29:24: [GetNet] - Starting log...
+2021-09-26 09:29:24: [GetNet] - Setting env: sandbox
+2021-09-26 09:29:25: [GetNet] - Success OAuth
+2021-09-26 09:29:26: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 09:29:26: [GetNet] - Create purchaser
+2021-09-26 09:30:11: [GetNet] - Starting log...
+2021-09-26 09:30:11: [GetNet] - Setting env: sandbox
+2021-09-26 09:30:11: [GetNet] - Success OAuth
+2021-09-26 09:30:12: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 09:30:12: [GetNet] - Create purchaser
+2021-09-26 09:48:04: [GetNet] - Starting log...
+2021-09-26 09:48:04: [GetNet] - Setting env: sandbox
+2021-09-26 09:48:06: [GetNet] - Success OAuth
+2021-09-26 09:48:07: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 09:48:07: [GetNet] - Create purchaser
+2021-09-26 09:49:41: [GetNet] - Starting log...
+2021-09-26 09:49:41: [GetNet] - Setting env: sandbox
+2021-09-26 09:49:41: [GetNet] - Success OAuth
+2021-09-26 09:49:41: [GetNet] - Create purchaser
+2021-09-26 09:50:40: [GetNet] - Starting log...
+2021-09-26 09:50:40: [GetNet] - Setting env: sandbox
+2021-09-26 09:50:41: [GetNet] - Success OAuth
+2021-09-26 09:50:41: [GetNet] - Create purchaser
+2021-09-26 09:52:15: [GetNet] - Starting log...
+2021-09-26 09:52:15: [GetNet] - Setting env: sandbox
+2021-09-26 09:52:16: [GetNet] - Success OAuth
+2021-09-26 09:52:16: [GetNet] - Create purchaser
+2021-09-26 09:52:39: [GetNet] - Starting log...
+2021-09-26 09:52:39: [GetNet] - Setting env: sandbox
+2021-09-26 09:52:39: [GetNet] - Success OAuth
+2021-09-26 09:52:39: [GetNet] - Create purchaser
+2021-09-26 09:53:03: [GetNet] - Starting log...
+2021-09-26 09:53:03: [GetNet] - Setting env: sandbox
+2021-09-26 09:53:04: [GetNet] - Success OAuth
+2021-09-26 09:53:04: [GetNet] - Create purchaser
+2021-09-26 09:54:07: [GetNet] - Starting log...
+2021-09-26 09:54:07: [GetNet] - Setting env: sandbox
+2021-09-26 09:54:07: [GetNet] - Starting log...
+2021-09-26 09:54:07: [GetNet] - Setting env: sandbox
+2021-09-26 09:54:07: [GetNet] - Success OAuth
+2021-09-26 09:54:07: [GetNet] - Success OAuth
+2021-09-26 09:54:08: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 09:54:08: [GetNet] - Create purchaser
+2021-09-26 09:54:08: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 09:54:08: [GetNet] - Create purchaser
+2021-09-26 09:57:33: [GetNet] - Starting log...
+2021-09-26 09:57:33: [GetNet] - Setting env: sandbox
+2021-09-26 09:57:34: [GetNet] - Success OAuth
+2021-09-26 09:57:35: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 09:57:35: [GetNet] - Create purchaser
+2021-09-26 10:00:15: [GetNet] - Starting log...
+2021-09-26 10:00:15: [GetNet] - Setting env: sandbox
+2021-09-26 10:00:16: [GetNet] - Success OAuth
+2021-09-26 10:00:17: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:00:17: [GetNet] - Create purchaser
+2021-09-26 10:00:42: [GetNet] - Starting log...
+2021-09-26 10:00:42: [GetNet] - Setting env: sandbox
+2021-09-26 10:00:42: [GetNet] - Success OAuth
+2021-09-26 10:00:43: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:00:43: [GetNet] - Create purchaser
+2021-09-26 10:05:13: [GetNet] - Starting log...
+2021-09-26 10:05:13: [GetNet] - Setting env: sandbox
+2021-09-26 10:05:13: [GetNet] - Success OAuth
+2021-09-26 10:05:14: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:05:14: [GetNet] - Create purchaser
+2021-09-26 10:05:57: [GetNet] - Starting log...
+2021-09-26 10:05:57: [GetNet] - Setting env: sandbox
+2021-09-26 10:05:57: [GetNet] - Success OAuth
+2021-09-26 10:05:57: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:05:57: [GetNet] - Create purchaser
+2021-09-26 10:06:35: [GetNet] - Starting log...
+2021-09-26 10:06:35: [GetNet] - Setting env: sandbox
+2021-09-26 10:06:35: [GetNet] - Success OAuth
+2021-09-26 10:06:36: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:06:36: [GetNet] - Create purchaser
+2021-09-26 10:07:07: [GetNet] - Starting log...
+2021-09-26 10:07:07: [GetNet] - Setting env: sandbox
+2021-09-26 10:07:07: [GetNet] - Success OAuth
+2021-09-26 10:07:08: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:07:08: [GetNet] - Create purchaser
+2021-09-26 10:11:56: [GetNet] - Starting log...
+2021-09-26 10:11:56: [GetNet] - Setting env: sandbox
+2021-09-26 10:11:56: [GetNet] - Success OAuth
+2021-09-26 10:11:57: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:11:57: [GetNet] - Create purchaser
+2021-09-26 10:12:09: [GetNet] - Starting log...
+2021-09-26 10:12:09: [GetNet] - Setting env: sandbox
+2021-09-26 10:12:10: [GetNet] - Success OAuth
+2021-09-26 10:12:10: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:12:10: [GetNet] - Create purchaser
+2021-09-26 10:15:01: [GetNet] - Starting log...
+2021-09-26 10:15:01: [GetNet] - Setting env: sandbox
+2021-09-26 10:15:01: [GetNet] - Success OAuth
+2021-09-26 10:15:02: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:15:02: [GetNet] - Create purchaser
+2021-09-26 10:15:45: [GetNet] - Starting log...
+2021-09-26 10:15:45: [GetNet] - Setting env: sandbox
+2021-09-26 10:15:45: [GetNet] - Success OAuth
+2021-09-26 10:15:46: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:15:46: [GetNet] - Create purchaser
+2021-09-26 10:20:25: [GetNet] - Starting log...
+2021-09-26 10:20:25: [GetNet] - Setting env: sandbox
+2021-09-26 10:20:25: [GetNet] - Success OAuth
+2021-09-26 10:20:26: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:20:26: [GetNet] - Create purchaser

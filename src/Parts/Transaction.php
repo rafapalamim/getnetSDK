@@ -2,6 +2,7 @@
 
 namespace GetNet\Parts;
 
+use Exception;
 use GetNet\Exception\SDKException;
 use GetNet\GetNet;
 use GetNet\Helpers\Errors;
@@ -266,55 +267,75 @@ class Transaction
 
         $body = json_encode($json);
 
-        $res = $this->getnet->getRequester()->makeRequest('POST', $endpointPaymentMethod, [
-            'headers' => [
-                'Content-Type' => 'application/json; charset=utf-8',
-                'Authorization' => $this->getnet->getAuth()->getAuthorization()
-            ],
-            'body' => $body
-        ]);
+        try {
 
-        if (!$res) {
-            var_dump($this->getnet->getRequester()->getError()); die;
-            throw new SDKException("Fail on make request: " . $this->getnet->getRequester()->getError());
-        }
+            $transactions = [];
+            $transactions['track_id'] = $this->trackNumber;
+            $transactions['order_id'] = $this->order->order_id;
 
-        $res = $this->getnet->getRequester()->getRespose();
-
-        if ($paymentMethod == ClientCard::DEBIT && $res['status_code'] === 201) {
-
-            $issuer_payment_id = $res['body']->post_data->issuer_payment_id;
-            $payer_authentication_request = $res['body']->post_data->payer_authentication_request;
-            $redirect_url = $res['body']->redirect_url;
-
-            $res = $this->getnet->getRequester()->makeRequest('POST', $redirect_url, [
+            $res = $this->getnet->getRequester()->makeRequest('POST', $endpointPaymentMethod, [
                 'headers' => [
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                    'Accept' => "application/json, text/plain, */*"
+                    'Content-Type' => 'application/json; charset=utf-8',
+                    'Authorization' => $this->getnet->getAuth()->getAuthorization()
                 ],
-                'form_params' => [
-                    'PaReq' => $payer_authentication_request,
-                    'TermUrl' => 'https://developers.getnet.com.br/simulator/3dsecure/debit/callback',
-                    'PaymentID' => $issuer_payment_id
-                ]
+                'body' => $body
             ]);
 
             if (!$res) {
-                throw new SDKException("Fail on make request: " . $this->getnet->getRequester()->getError());
+                $transactions['transaction']['response_transaction'] = $this->getnet->getRequester()->getError();
+                $transactions['step_error'] = 'response_transaction';
+                throw new Exception("Fail on make request (" . __LINE__ . ")");
             }
 
             $res = $this->getnet->getRequester()->getRespose();
-            var_dump($res);
-            die;
+            $transactions['transaction']['response_transaction'] = $res;
+
+            if ($paymentMethod == ClientCard::CREDIT) {
+                if ($res['status_code'] !== 200) {
+                    $transactions['step_error'] = 'response_transaction';
+                    throw new Exception("Status code not expected (" . __LINE__ . ")");
+                }
+            }
+
+            if ($paymentMethod == ClientCard::DEBIT) {
+                if ($res['status_code'] === 201) {
+                    $issuer_payment_id = $res['body']->post_data->issuer_payment_id;
+                    $payer_authentication_request = $res['body']->post_data->payer_authentication_request;
+                    $redirect_url = $res['body']->redirect_url;
+
+                    $res = $this->getnet->getRequester()->makeRequest('POST', $redirect_url, [
+                        'headers' => [
+                            'Content-Type' => 'application/x-www-form-urlencoded',
+                            'Accept' => "application/json, text/plain, */*"
+                        ],
+                        'form_params' => [
+                            'PaReq' => $payer_authentication_request,
+                            'TermUrl' => 'https://developers.getnet.com.br/simulator/3dsecure/debit/callback',
+                            'PaymentID' => $issuer_payment_id
+                        ]
+                    ]);
+
+                    if (!$res) {
+                        $transactions['transaction']['debit_callback'] = $this->getnet->getRequester()->getError();
+                        $transactions['step_error'] = 'debit_callback';
+                        throw new Exception("Fail on make request (" . __LINE__ . ")");
+                    }
+
+                    $res = $this->getnet->getRequester()->getRespose();
+                    $transactions['transaction']['debit_callback'] = $res;
+                } else {
+                    $transactions['step_error'] = 'debit_callback';
+                    throw new Exception("Status code not expected (" . __LINE__ . ")");
+                }
+            }
+
+            $transactions['status'] = true;
+            $transactions['message'] = null;
+        } catch (Exception $e) {
+            $transactions['status'] = false;
+            $transactions['message'] = $e->getMessage();
         }
 
-
-        echo '<pre>';
-        var_dump($res, $json);
-        die;
-    }
-
-    private function authenticateDebit()
-    {
+        return $transactions;
     }
 }

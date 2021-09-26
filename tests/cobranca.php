@@ -24,6 +24,7 @@ try {
 
     // Iniciando objeto GetNet com os dados de autenticação
     $getnet = new GetNet($clientId, $clientSecret, $sellerId);
+    $getnet->debugMode($pathToLog);
     $getnet->setEnv(GetNet::ENV_SANDBOX);
 
     // Informando o endereço do cliente
@@ -44,12 +45,12 @@ try {
         ->validateClientCard();
 
     // Salvar dados do cartão para cobranças futuras
-    if($saveCard && $getnet->getClientMethodPayment()->cardIsVerified()){
+    if ($saveCard && $getnet->getClientMethodPayment()->cardIsVerified()) {
         $getnet->saveCard();
     }
-    
+
     $trans = new Transaction($getnet, 'trackCode');
-    $trans
+    $res = $trans
         ->setAmount(50.25)
         ->setCurrency(Transaction::CURRENCY_BR)
         ->setOrder('1', 0, Transaction::PRODUCT_TYPE_SERVICE)
@@ -58,12 +59,24 @@ try {
         // ->setPaymentAttributes($paymentAttributesDebit)
         ->runWithAntiFraud('123');
 
+    // Inserir log do seu sistema
+    $json = json_encode($res);
+
+    if(!$res['status']){
+        // Tratado pelo seu sistema
+    }
+
+    // Completar lógica da compra para o seu sistema
 
     removeAttemp($sessionUser, $attempsPath);
+
+
     echo '<pre>';
-    var_dump($trans);
-    die;
+    var_dump($res);
+
+    
 } catch (SDKException $e) {
+    // Inserir log do seu sistema
     var_dump($e->getMessage());
     die;
 }

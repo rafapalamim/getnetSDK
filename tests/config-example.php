@@ -8,6 +8,8 @@ $clientId = 'CLIENT_ID';
 $clientSecret = 'CLIENT_SECRET';
 $sellerId = 'SELLER_ID';
 
+$pathToLog = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'debug';
+
 $addressData = [
     'Rua das Flores', // Rua
     '33', // Número
