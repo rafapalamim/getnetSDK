@@ -1,6 +1,7 @@
 {
     "name": "rafapalamim/getnet-sdk",
     "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Rafael Palamim",
