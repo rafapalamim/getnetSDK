@@ -30,6 +30,8 @@ class GetNet
 
     /** @var Auth */
     private $auth;
+
+    /** @var Request */
     private $request;
 
     private $purchaser;
@@ -102,7 +104,7 @@ class GetNet
         ]);
 
         if (!$res) {
-            throw new SDKException("Fail on auth process: " . $this->request->getError());
+            throw new SDKException("Fail on auth process: " . $this->request->getError(true));
         }
 
         $res = $this->request->getRespose();
@@ -129,6 +131,12 @@ class GetNet
         $this->purchaser->client = $client;
         $this->purchaser->address = $address;
         $this->purchaser->methodPayment = $methodPayment;
+        if (isset($this->purchaser->methodPayment->idSavedCard) && $this->purchaser->methodPayment->idSavedCard) {
+            $methodPaymentClass = get_class($this->purchaser->methodPayment);
+            if (preg_match('/Card/', $methodPaymentClass)) {
+                $this->loadCardData();
+            }
+        }
 
         return $this;
     }
@@ -143,24 +151,26 @@ class GetNet
 
         $this->validateEnv();
 
-        $res = $this->request->makeRequest('POST', '/v1/tokens/card', [
-            'headers' => [
-                'Content-Type' => 'application/json; charset=utf-8',
-                'Authorization' => $this->auth->getAuthorization()
-            ],
-            'body' => json_encode([
-                'card_number' => $this->getClientMethodPayment()->numberCard,
-                'customer_id' => $this->getClientData()->customerId
-            ])
-        ]);
+        if (!$this->getClientMethodPayment()->tokenCard) {
+            $res = $this->request->makeRequest('POST', '/v1/tokens/card', [
+                'headers' => [
+                    'Content-Type' => 'application/json; charset=utf-8',
+                    'Authorization' => $this->auth->getAuthorization()
+                ],
+                'body' => json_encode([
+                    'card_number' => $this->getClientMethodPayment()->numberCard,
+                    'customer_id' => $this->getClientData()->customerId
+                ])
+            ]);
 
-        if (!$res) {
-            throw new SDKException("Fail on tokenizer the card: " . $this->request->getError());
+            if (!$res) {
+                throw new SDKException("Fail on tokenizer the card: " . $this->request->getError(true));
+            }
+
+            $res = $this->request->getRespose();
+
+            $this->getClientMethodPayment()->setTokenCard($res['body']->number_token);
         }
-
-        $res = $this->request->getRespose();
-
-        $this->getClientMethodPayment()->setTokenCard($res['body']->number_token);
 
         return $this;
     }
@@ -191,7 +201,7 @@ class GetNet
         ]);
 
         if (!$res) {
-            throw new SDKException("Fail on validate the card: " . $this->request->getError());
+            throw new SDKException("Fail on validate the card: " . $this->request->getError(true));
         }
 
         $res = $this->request->getRespose();
@@ -201,6 +211,83 @@ class GetNet
         return $this;
     }
 
+    /**
+     * Save a data of card on getnet (recurrency)
+     *
+     * @param boolean $withVerifyCard
+     * @return void
+     */
+    public function saveCard(bool $withVerifyCard = true)
+    {
+        $this->validateEnv();
+
+        $card = $this->getClientMethodPayment();
+        $client = $this->getClientData();
+
+        if (!$card->idSavedCard) {
+            $res = $this->request->makeRequest('POST', '/v1/cards', [
+                'headers' => [
+                    'Content-Type' => 'application/json; charset=utf-8',
+                    'Authorization' => $this->auth->getAuthorization(),
+                    'seller_id' => $this->sellerId
+                ],
+                'body' => json_encode([
+                    'number_token' => $card->tokenCard,
+                    'brand' => $card->brand,
+                    'cardholder_name' => $card->cardHolderName,
+                    'expiration_month' => $card->expirationMonth,
+                    'expiration_year' => $card->expirationYear,
+                    'customer_id' => $client->customerId,
+                    'cardholder_identification' => $client->documentNumber,
+                    'verify_card' => $withVerifyCard,
+                    'security_code' => $card->securityCode
+                ])
+            ]);
+
+            if (!$res) {
+                throw new SDKException("Fail on save the card: " . $this->request->getError(true));
+            }
+
+            $res = $this->request->getRespose();
+
+            $card->saveIdCard($res['body']->card_id);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Load the data of card from getnet
+     *
+     * @return void
+     */
+    private function loadCardData()
+    {
+        $this->validateEnv();
+
+        $uri = '/v1/cards/' . $this->purchaser->methodPayment->idSavedCard;
+
+        $res = $this->request->makeRequest('GET', $uri, [
+            'headers' => [
+                'Authorization' => $this->auth->getAuthorization(),
+                'seller_id' => $this->sellerId
+            ]
+        ]);
+
+        if (!$res) {
+            throw new SDKException("Fail on load the card: " . $this->request->getError(true));
+        }
+
+        $res = $this->request->getRespose();
+        $body = $res['body'];
+
+        $this->purchaser->methodPayment->brand = $body->brand;
+        $this->purchaser->methodPayment->cardHolderName = $body->cardholder_name;
+        $this->purchaser->methodPayment->expirationMonth = $body->expiration_month;
+        $this->purchaser->methodPayment->expirationYear = $body->expiration_year;
+        $this->purchaser->methodPayment->tokenCard = $body->number_token;
+        $this->purchaser->methodPayment->lastDigits = $body->last_four_digits;
+    }
 
     #########################################
     ########### HELPERS VALIDATOR ###########

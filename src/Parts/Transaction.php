@@ -304,14 +304,14 @@ class Transaction
             }
 
             $res = $this->getnet->getRequester()->getRespose();
-            // var_dump($res);
-            // die;
+            var_dump($res);
+            die;
         }
 
 
-        // echo '<pre>';
-        // var_dump($res, $json);
-        // die;
+        echo '<pre>';
+        var_dump($res, $json);
+        die;
     }
 
     private function authenticateDebit()

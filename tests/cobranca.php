@@ -29,8 +29,9 @@ try {
     // Informando o endereço do cliente
     $clientAddress = new ClientAddress($addressData);
 
-    // Informando os dados do cartão do cliente
-    $methodPayment = new ClientCard($cardData);
+    // Informando os dados do cartão do cliente    
+    $methodPayment = new ClientCard([], $idCard, $securityCodeSaved, $typeCardSaved);
+    // $methodPayment = new ClientCard($cardData);
 
     // Dados gerais do cliente
     $client = new Client($clientData);
@@ -42,6 +43,11 @@ try {
         ->makeCardToken()
         ->validateClientCard();
 
+    // Salvar dados do cartão para cobranças futuras
+    if($saveCard && $getnet->getClientMethodPayment()->cardIsVerified()){
+        $getnet->saveCard();
+    }
+    
     $trans = new Transaction($getnet, 'trackCode');
     $trans
         ->setAmount(50.25)

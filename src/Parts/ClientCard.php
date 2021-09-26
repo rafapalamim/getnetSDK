@@ -27,7 +27,7 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
 
     /** @var string */
     public const CREDIT = 'credit';
-    
+
     /** @var string */
     public const CREDIT_ENDPOINT = '/v1/payments/credit';
 
@@ -56,7 +56,13 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
     private $securityCode;
 
     /** @var string */
+    private $idSavedCard;
+
+    /** @var string */
     private $tokenCard;
+
+    /** @var string */
+    private $lastDigits;
 
     /** @var null|\stdClass */
     private $verification;
@@ -64,16 +70,32 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
     /** @var string */
     private $type;
 
-    function __construct(array $data)
+    function __construct(array $data, string $id_saved_card = null, string $securityCodeSaved = null, string $typeCardSaved = null)
     {
-        $this->numberCard = $data[0];
-        $this->brand = $data[1];
-        $this->cardHolderName = $data[2];
-        $this->expirationMonth = $data[3];
-        $this->expirationYear = $data[4];
-        $this->securityCode = $data[5];
-        $this->type = $data[6];
-        $this->verification = null;
+
+        if ($id_saved_card) {
+
+            if (!$securityCodeSaved || !$typeCardSaved) {
+                throw new SDKException("Please, inform a securityCode and typeCard when the id_saved_card params is informed");
+            }
+
+            $this->idSavedCard = filter_var($id_saved_card, FILTER_SANITIZE_STRING);
+            $this->securityCode = filter_var($securityCodeSaved, FILTER_SANITIZE_NUMBER_INT);
+            $this->type = $typeCardSaved;
+        }
+
+        if ($data) {
+            $this->numberCard = $data[0];
+            $this->brand = $data[1];
+            $this->cardHolderName = $data[2];
+            $this->expirationMonth = $data[3];
+            $this->expirationYear = $data[4];
+            $this->securityCode = $data[5];
+            $this->type = $data[6];
+            $this->verification = null;
+
+            $this->lastDigits = substr($this->numberCard, (strlen($this->numberCard) - 4));
+        }
     }
 
     /**
@@ -88,6 +110,28 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
             return $this->$field;
         }
         return null;
+    }
+
+    /**
+     * Magic method __set
+     *
+     * @param string $field
+     * @param [type] $value
+     */
+    function __set(string $field, $value)
+    {        
+        $this->$field = $value;
+    }
+
+    /**
+     * Magic method __isset
+     *
+     * @param string $field
+     * @return boolean
+     */
+    function __isset(string $field)
+    {
+        return isset($this->$field);
     }
 
     /**
@@ -117,16 +161,54 @@ class ClientCard implements \GetNet\Interfaces\MethodPaymentInterface
         return $this;
     }
 
+    /**
+     * Check if card is verified
+     *
+     * @return void
+     */
+    public function cardIsVerified()
+    {
+        if ($this->brand != self::AMEX) {
+            return ($this->verification->status == 'VERIFIED');
+        }
+
+        return true;
+    }
+
+    /**
+     * Set a id card saved on getnet (recurrency)
+     *
+     * @param string $idCard
+     * @return ClientCard
+     */
+    public function saveIdCard(string $idCard): ClientCard
+    {
+        $this->idSavedCard = $idCard;
+
+        return $this;
+    }
+
+
+    /**
+     * Return type of card (debit or credit)
+     *
+     * @return string
+     */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * Get endpoint to make a transaction
+     *
+     * @return string
+     */
     public function getTypeEndpoint()
     {
-        if($this->type){
+        if ($this->type) {
             return $this->type === self::CREDIT ? self::CREDIT_ENDPOINT : self::DEBIT_ENDPOINT;
-        }else{
+        } else {
             throw new SDKException("No payment type setted");
         }
     }
