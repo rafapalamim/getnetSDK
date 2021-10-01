@@ -321,8 +321,30 @@ class Transaction
                         throw new Exception("Fail on make request (" . __LINE__ . ")");
                     }
 
-                    $res = $this->getnet->getRequester()->getRespose();
-                    $transactions['transaction']['debit_callback'] = $res;
+
+                    $resCreate = $this->getnet->getRequester()->getRespose();
+                    $transactions['transaction']['debit_callback'] = $resCreate;
+
+                    $finalizeUrl = '/v1/payments/debit/'.$transactions['transaction']['response_transaction']['body']->payment_id.'/authenticated/finalize';
+
+                    $res = $this->getnet->getRequester()->makeRequest('POST', $finalizeUrl, [
+                        'headers' => [
+                            'Content-Type' => 'application/json',
+                            'Accept' => "application/json, text/plain, */*",
+                            'Authorization' => $this->getnet->getAuth()->getAuthorization()
+                        ],
+                        'body' => json_encode(['payer_authentication_response' => $payer_authentication_request])
+                    ]);
+
+                    if (!$res) {
+                        $transactions['transaction']['debit_finalize'] = $this->getnet->getRequester()->getError();
+                        $transactions['step_error'] = 'debit_finalize';
+                        throw new Exception("Fail on make request (" . __LINE__ . ")");
+                    }
+
+                    $resFinalize = $this->getnet->getRequester()->getRespose();
+                    $transactions['transaction']['debit_finalize'] = $resFinalize;
+
                 } else {
                     $transactions['step_error'] = 'debit_callback';
                     throw new Exception("Status code not expected (" . __LINE__ . ")");

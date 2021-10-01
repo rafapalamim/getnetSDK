@@ -115,3 +115,8 @@
 2021-09-26 10:20:25: [GetNet] - Success OAuth
 2021-09-26 10:20:26: [GetNet] - GET a card data from getnet API (idSavedCard)
 2021-09-26 10:20:26: [GetNet] - Create purchaser
+2021-09-26 10:22:35: [GetNet] - Starting log...
+2021-09-26 10:22:35: [GetNet] - Setting env: sandbox
+2021-09-26 10:22:35: [GetNet] - Success OAuth
+2021-09-26 10:22:36: [GetNet] - GET a card data from getnet API (idSavedCard)
+2021-09-26 10:22:36: [GetNet] - Create purchaser

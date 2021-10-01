@@ -6,3 +6,4 @@ docker-compose.yml
 Dockerfile
 /tests/config.php
 /tests/attemps/*.json
+/tests/debug
